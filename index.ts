@@ -2,7 +2,7 @@ const fs = require('fs')
 const readline = require('readline')
 import { google } from 'googleapis'
 
-import { toJSON , groupByKeys } from './core'
+import { toJSON, groupByKeys } from './core'
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -81,32 +81,35 @@ function listMajors(auth) {
   const sheets = google.sheets({ version: 'v4', auth })
   sheets.spreadsheets.values.get(
     {
-      spreadsheetId: '1ux7ttNVuTbMaIfcW4t8tZe9Ii17F-3khXjHR8Il2dGI',
-      range: 'A:O',
+      spreadsheetId: '1iCojdDvjaRaxvKGvU63LgrSmJB2qC6nyRBEpqmOfVnU',
+      range: 'A:G',
     },
     (err, res) => {
       if (err) return console.log('The API returned an error: ' + err)
       const rows = res.data.values
 
-      console.log('rows', rows)
-
       const toJson = toJSON(rows)
+      // console.log('toJSON', toJson)
 
-      const grouped = groupByKeys(
-        toJson.map(item => {
-          return {
-            'Shipment No.:': item['Shipment No.:'],
-            'Delivery Order No.:': item['Delivery Order No.:'],
-          }
-        }),
-        toJson,
-      )
+      const keys = toJson.map(item => {
+        return {
+          'Guitar Brand': item['Guitar Brand'],
+          'Production origin': item['Production origin'],
+        }
+      })
+      const grouped = groupByKeys(keys, toJson)
+      console.log('grouped')
+      grouped.map(group => {
+        console.log('---------')
+        console.log('key', group.key)
+        console.log('items', group.items)
+      })
     },
   )
 
-  sheets.spreadsheets.values.update(
+  /*   sheets.spreadsheets.values.update(
     {
-      spreadsheetId: '1ux7ttNVuTbMaIfcW4t8tZe9Ii17F-3khXjHR8Il2dGI',
+      spreadsheetId: '1iCojdDvjaRaxvKGvU63LgrSmJB2qC6nyRBEpqmOfVnU',
       valueInputOption: 'USER_ENTERED',
       range: 'Sheet1!O2',
       requestBody: {
@@ -119,5 +122,5 @@ function listMajors(auth) {
       if (err) return console.log('The API returned an error: ' + err)
       console.log(res)
     },
-  )
+  ) */
 }
